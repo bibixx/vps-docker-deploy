@@ -1,23 +1,23 @@
-name: 'VPS Deploy'
-description: 'Deploy repository to a VPS server using rsync & docker compose'
+name: "VPS Deploy"
+description: "Deploy repository to a VPS server using rsync & docker compose"
 inputs:
   HOST_PATH:
     required: true
-    description: 'The local path'
+    description: "The local path"
   TARGET_PATH:
     required: true
-    description: 'The remote path'
+    description: "The remote path"
   HOST:
     required: true
-    description: 'The remote host'
+    description: "The remote host"
   USER:
     required: true
-    description: 'The remote user'
+    description: "The remote user"
   KEY:
     required: true
-    description: 'The remote key'
+    description: "The remote key"
   PORT:
-    description: 'The remote port'
+    description: "The remote port"
     required: false
     default: "22"
 
@@ -61,7 +61,7 @@ runs:
           if [[ -d $SECRETS_PATH ]]
           then
               echo "============================ Copying secrets ==========================="
-              cp -r $SECRETS_PATH/* $CURRENT_PATH/
+              cp -rT $SECRETS_PATH $CURRENT_PATH
           else
               echo "============== No secrets found, skipping copying secrets =============="
           fi
