@@ -1,0 +1,88 @@
+name: 'VPS Deploy'
+description: 'Deploy repository to a VPS server using rsync & docker compose'
+inputs:
+  HOST_PATH:
+    required: true
+    description: 'The local path'
+  TARGET_PATH:
+    required: true
+    description: 'The remote path'
+  HOST:
+    required: true
+    description: 'The remote host'
+  USER:
+    required: true
+    description: 'The remote user'
+  KEY:
+    required: true
+    description: 'The remote key'
+  PORT:
+    description: 'The remote port'
+    required: false
+    default: "22"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Get timestamp for folder name
+      id: current_timestamp
+      shell: bash
+      run: |
+        echo "current_timestamp=$(date +'%s')" >> $GITHUB_OUTPUT
+
+    - name: Push repo to remote
+      uses: burnett01/rsync-deployments@5.2.1
+      with:
+        switches: -avzr --delete --mkpath
+        path: ${{ inputs.HOST_PATH }}/
+        remote_path: ${{ inputs.TARGET_PATH }}/deployments/${{ steps.current_timestamp.outputs.current_timestamp }}
+        remote_host: ${{ inputs.HOST }}
+        remote_user: ${{ inputs.USER }}
+        remote_key: ${{ inputs.KEY }}
+        remote_port: ${{ inputs.PORT }}
+
+    - name: Deploy updated repo
+      uses: appleboy/ssh-action@v0.1.6
+      with:
+        host: ${{ inputs.HOST }}
+        username: ${{ inputs.USER }}
+        key: ${{ inputs.KEY }}
+        port: ${{ inputs.PORT }}
+        script: |
+          export CI=true
+
+          SECRETS_PATH="${{ inputs.TARGET_PATH }}/secrets"
+          CURRENT_PATH="${{ inputs.TARGET_PATH }}/deployments/${{ steps.current_timestamp.outputs.current_timestamp }}"
+          LATEST_PATH="${{ inputs.TARGET_PATH }}/deployments/latest"
+
+          echo "============================== Saving SHA =============================="
+          echo "${{ github.sha }}" > "$CURRENT_PATH/.git_sha"
+
+          if [[ -d $SECRETS_PATH ]]
+          then
+              echo "============================ Copying secrets ==========================="
+              cp -r $SECRETS_PATH/* $CURRENT_PATH/
+          else
+              echo "============== No secrets found, skipping copying secrets =============="
+          fi
+
+          echo "=========================== Build new images ==========================="
+          cd $CURRENT_PATH
+          docker compose build
+
+          if [[ -d $LATEST_PATH ]]
+          then
+              echo "========================= Kill previous process ========================"
+              cd $LATEST_PATH
+              docker compose down
+          else
+              echo "==== No latest deployments found, skipping killing previous process ===="
+          fi
+
+          echo "============================ Create symlink ============================"
+          rm -rf $LATEST_PATH
+          ln -s $CURRENT_PATH $LATEST_PATH
+
+          echo "============================ Run new process ==========================="
+          cd $LATEST_PATH
+          docker compose up -d

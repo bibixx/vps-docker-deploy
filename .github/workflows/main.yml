@@ -1,0 +1,21 @@
+name: Sample deploy to VPS (To be used with act)
+on:
+  workflow_dispatch:
+
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - run: |
+        echo "<html><body>$(date +'%s')</body></html>" > example/index.html
+
+    - uses: ./
+      with:
+        HOST_PATH: ${{ secrets.DEPLOY_HOST_PATH }}
+        TARGET_PATH: ${{ secrets.DEPLOY_TARGET_PATH }}
+        HOST: ${{ secrets.DEPLOY_HOST }}
+        USER: ${{ secrets.DEPLOY_USER }}
+        KEY: ${{ secrets.DEPLOY_KEY }}
