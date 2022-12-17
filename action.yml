@@ -1,9 +1,6 @@
 name: "VPS Deploy"
 description: "Deploy repository to a VPS server using rsync & docker compose"
 inputs:
-  PROJECT_NAME:
-    required: true
-    description: "Project name"
   HOST_PATH:
     required: true
     description: "The local path"
@@ -53,7 +50,6 @@ runs:
         port: ${{ inputs.PORT }}
         script: |
           export CI=true
-          export COMPOSE_PROJECT_NAME=${{ inputs.PROJECT_NAME }}
 
           SECRETS_PATH="${{ inputs.TARGET_PATH }}/secrets"
           CURRENT_PATH="${{ inputs.TARGET_PATH }}/deployments/${{ steps.current_timestamp.outputs.current_timestamp }}"
