@@ -70,7 +70,7 @@ runs:
               echo "============== No secrets found, skipping copying secrets =============="
           fi
 
-          echo "=========================== Pulling required images ==========================="
+          echo "======================== Pulling required images ======================="
           cd $CURRENT_PATH
           docker compose pull --ignore-buildable
 
