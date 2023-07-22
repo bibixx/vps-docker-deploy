@@ -9,8 +9,8 @@ services:
       - nginx
     environment:
       VIRTUAL_PORT: 80
-      VIRTUAL_HOST: analytics.legiec.info
-      LETSENCRYPT_HOST: analytics.legiec.info
+      VIRTUAL_HOST: demo.example.com
+      LETSENCRYPT_HOST: demo.example.com
 
 networks:
   nginx:

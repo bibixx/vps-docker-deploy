@@ -20,6 +20,10 @@ inputs:
     description: "The remote port"
     required: false
     default: "22"
+  REMOVE_VOLUMES:
+    description: "Should the --volumes option be passed to down command"
+    required: false
+    default: "false"
 
 runs:
   using: "composite"
@@ -74,7 +78,15 @@ runs:
           then
               echo "========================= Kill previous process ========================"
               cd $LATEST_PATH
-              docker compose down
+
+              if [[ "${{ inputs.REMOVE_VOLUMES }}" = "true" ]]
+              then
+                  echo "volumes"
+                  docker compose down --volumes
+              else
+                  echo "else"
+                  docker compose down
+              fi
           else
               echo "==== No latest deployments found, skipping killing previous process ===="
           fi

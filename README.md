@@ -20,3 +20,10 @@ jobs:
           USER: ${{ secrets.DEPLOY_USER }}
           KEY: ${{ secrets.DEPLOY_KEY }}
 ```
+
+## Development
+1. [Install `act`](https://github.com/nektos/act#installation)
+2. Run example
+```sh
+act -j deploy -W ./.github/workflows/main.yml
+```

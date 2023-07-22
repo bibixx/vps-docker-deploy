@@ -1,2 +1,2 @@
 FROM httpd:alpine
-COPY ./index.html /usr/local/apache2/htdocs/index.html
+RUN echo "<html><body>$(date +'%s')</body></html>" > /usr/local/apache2/htdocs/index.html
